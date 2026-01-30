@@ -294,4 +294,4 @@ doc/api/
 # ============================================================================
 
 # Don't ignore the manifest (track it)
-!example/assets/logic/manifest.json
+**/*.bundle

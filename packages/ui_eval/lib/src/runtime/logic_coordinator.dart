@@ -162,6 +162,46 @@ console.log('[System] SDK Bootstrap loaded');
     _loadedModules.add(moduleId);
   }
 
+  /// Load module logic directly from JavaScript code string
+  Future<void> loadModuleLogic(String moduleId, String jsCode) async {
+    if (!_initialized) {
+      throw StateError('GlobalLogicContainer not initialized. Call initialize() first.');
+    }
+
+    if (_loadedModules.contains(moduleId)) {
+      debugPrint('[LogicEngine] Module $moduleId already loaded');
+      return;
+    }
+
+    debugPrint('[LogicEngine] Loading module logic: $moduleId');
+
+    // Escape the JS code for injection
+    final escapedCode = jsCode
+        .replaceAll('\\', '\\\\')
+        .replaceAll("'", "\\'")
+        .replaceAll('\n', '\\n');
+
+    await _controller!.runJavaScript('''
+(function() {
+  try {
+    const code = '$escapedCode';
+    const moduleWrapper = new Function('moduleId', `
+      \${code}
+      if (typeof AppLogic_${moduleId} !== 'undefined') {
+        window.__ui_eval_registry__.register('${moduleId}', AppLogic_${moduleId});
+      }
+    `);
+    moduleWrapper('${moduleId}');
+    console.log('[System] Module ${moduleId} logic loaded successfully');
+  } catch (err) {
+    console.error('[System] Failed to load module logic ${moduleId}:', err);
+  }
+})();
+''');
+
+    _loadedModules.add(moduleId);
+  }
+
   WebViewController? get controller => _controller;
 
   void _handleJSMessage(JavaScriptMessage message) {

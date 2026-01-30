@@ -106,7 +106,7 @@ class AppLauncherPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  'TS',
+                  'BUNDLE',
                   style: TextStyle(color: app.color, fontWeight: FontWeight.bold, fontSize: 12),
                 ),
               ),
