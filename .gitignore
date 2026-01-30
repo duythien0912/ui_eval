@@ -293,5 +293,5 @@ doc/api/
 # CUSTOM (Project Specific)
 # ============================================================================
 
-# Don't ignore the manifest (track it)
 **/*.bundle
+**/*manifest.json

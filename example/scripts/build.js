@@ -16,7 +16,7 @@ const fs = require("fs");
 const path = require("path");
 
 const MODULES_DIR = path.join(__dirname, "..", "modules");
-const OUTPUT_DIR = path.join(__dirname, "..", "assets", "logic");
+const OUTPUT_DIR = path.join(__dirname, "..", "assets");
 const SDK_PATH = path.join(__dirname, "..", "..", "ts_sdk", "dist");
 
 function scanModules() {
