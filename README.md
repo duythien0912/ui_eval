@@ -1,235 +1,220 @@
 # ui_eval
 
-Type-safe DSL for flutter_eval with hot update support. Build dynamic Flutter UIs without writing Dart code as strings.
-
-## Features
-
-- 🎯 **Type-safe DSL** - Build UIs with IDE autocomplete and type checking
-- 🔄 **Hot Updates** - Push UI updates over-the-air without app store
-- 🧩 **JSON-based UI** - Server-driven UI with state management
-- ⚡ **flutter_eval Integration** - Compile to EVC bytecode for production
-- 🎨 **Familiar API** - Widget names match Flutter's Material Design
-
-## Installation
-
-```yaml
-dependencies:
-  ui_eval: ^0.1.0
-```
-
-## Quick Start
-
-### 1. Type-Safe DSL
-
-```dart
-import 'package:ui_eval/ui_eval.dart';
-
-// Define your UI with type-safe DSL
-final program = UIProgram(
-  name: 'TodoPage',
-  states: [
-    UIState(key: 'todos', defaultValue: <Map<String, dynamic>>[]),
-    UIState(key: 'newTitle', defaultValue: ''),
-  ],
-  actions: [
-    UIAction(name: 'addTodo'),
-    UIAction(name: 'toggleTodo'),
-  ],
-  root: UIScaffold(
-    appBar: UIAppBar(title: 'Todo App'),
-    body: UIColumn(
-      children: [
-        UITextField(
-          hint: 'Enter todo...',
-          onChanged: UIActionRef('updateTitle'),
-        ),
-        UIButton(
-          onPressed: UIActionRef('addTodo'),
-          child: UIText('Add'),
-        ),
-      ],
-    ),
-  ),
-);
-
-// Generate Dart code
-final dartCode = program.toDartCode();
-
-// Or compile to EVC bytecode
-final compiler = UICompiler();
-final bytes = await compiler.compileToEvc(
-  className: 'TodoPage',
-  root: program.root,
-  states: program.states,
-  actions: program.actions,
-);
-```
-
-### 2. JSON-Based Dynamic UI
-
-```dart
-// Define UI as JSON (can come from server)
-final uiJson = {
-  'version': '1.0.0',
-  'name': 'TodoPage',
-  'states': [
-    {'key': 'todos', 'type': 'List', 'defaultValue': []},
-  ],
-  'root': {
-    'type': 'Scaffold',
-    'appBar': {
-      'type': 'AppBar',
-      'title': 'Todo App',
-    },
-    'body': {
-      'type': 'ListView',
-      'children': [
-        // ... widgets
-      ],
-    },
-  },
-};
-
-// Render with state and actions
-UIJsonWidget(
-  json: uiJson,
-  initialState: {'todos': []},
-  actions: {
-    'addTodo': (params) => print('Add todo: $params'),
-    'toggleTodo': (params) => print('Toggle: $params'),
-  },
-)
-```
-
-### 3. Hot Update Support
-
-```dart
-UIEvalWidget(
-  json: uiJson,
-  initialState: {'todos': []},
-  actions: actionHandlers,
-  updateUrl: 'https://your-server.com',  // Enable hot updates
-  version: '1.0.0',
-  updateInterval: Duration(seconds: 30),  // Check every 30s
-)
-```
-
-## Available Widgets
-
-### Layout
-- `UIColumn`, `UIRow`, `UIStack`
-- `UIContainer`, `UICenter`, `UIAlign`
-- `UIExpanded`, `UISizedBox`, `UIPadding`
-- `UISafeArea`, `UIScaffold`
-
-### Content
-- `UIText` - Text with state reference support
-- `UIIcon`, `UIImage`
-- `UICard`, `UIListTile`, `UIDivider`
-
-### Input
-- `UIButton`, `UITextButton`, `UIIconButton`
-- `UITextField`
-- `UICheckbox`, `UISwitch`, `UIRadio`
-- `UIFloatingActionButton`
-
-### Lists
-- `UIListView`, `UIListViewBuilder`
-
-## Widgets Reference
-
-### UIText
-```dart
-// Simple text
-UIText('Hello World')
-
-// With styling
-UIText(
-  'Hello',
-  fontSize: 24,
-  color: Colors.blue,
-  fontWeight: FontWeight.bold,
-)
-
-// With state reference
-UIText.state(UIStateRef('username'))
-```
-
-### UIButton
-```dart
-UIButton(
-  onPressed: UIActionRef('onSubmit'),
-  backgroundColor: Colors.blue,
-  child: UIText('Submit'),
-)
-```
-
-### UIState
-```dart
-// Define state
-final todos = UIState<List>(key: 'todos', defaultValue: []);
-final count = UIState<int>(key: 'count', defaultValue: 0);
-
-// Reference in widgets
-UIText.state(todos.ref)
-UICheckbox(
-  value: UIStateRef('todos.0.completed'),
-  onChanged: UIActionRef('toggle'),
-)
-```
-
-## Hot Update Server
-
-Run the included update server:
-
-```bash
-cd example/server
-dart update_server.dart
-```
-
-Server endpoints:
-- `GET /api/update?version=1.0.0` - Check for updates
-- `GET /updates/1.1.0.json` - Download UI JSON
-- `POST /admin/publish` - Publish new update
-
-## Example: Todo App
-
-See `example/lib/todo_app.dart` for a complete working example.
-
-```bash
-cd example
-flutter run
-```
+Type-safe UI DSL for Flutter with hot update support.
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────┐
-│  Type-Safe DSL                          │
-│  UIColumn, UIButton, etc.               │
-└─────────────┬───────────────────────────┘
-              │
-              ▼
-┌─────────────────────────────────────────┐
-│  Compiler                               │
-│  - Dart code generator                  │
-│  - JSON serializer                      │
-│  - EVC bytecode compiler (flutter_eval) │
-└─────────────┬───────────────────────────┘
-              │
-              ▼
-┌─────────────────────────────────────────┐
-│  Runtime                                │
-│  - JSON interpreter                     │
-│  - EVC executor                         │
-│  - Hot update manager                   │
-└─────────────┬───────────────────────────┘
-              │
-              ▼
-┌─────────────────────────────────────────┐
-│  Flutter Widgets                        │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                        DEVELOPMENT                               │
+│                                                                  │
+│  ┌──────────────┐          ┌──────────────┐                     │
+│  │   mini_app   │  ──────► │  JSON Output │                     │
+│  │  (ui_eval)   │  build   │  (deployed)  │                     │
+│  └──────────────┘          └──────────────┘                     │
+│       Pure Dart                Server/Assets                     │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      RUNTIME (Flutter)                           │
+│                                                                  │
+│  ┌──────────────┐          ┌──────────────┐                     │
+│  │   host_app   │ ◄─────── │ ui_eval_runtime │                  │
+│  │   (Flutter)  │  render  │  (JSON→Widgets) │                  │
+│  └──────────────┘          └──────────────┘                     │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
+
+## Project Structure
+
+```
+ui_eval/
+├── lib/
+│   ├── core/                    # Pure Dart DSL (no Flutter)
+│   │   ├── ui_eval.dart         # Main export
+│   │   ├── src/
+│   │   │   ├── ui_widget.dart   # Base widget class
+│   │   │   ├── ui_state.dart    # State management
+│   │   │   ├── ui_action.dart   # Action handlers
+│   │   │   └── widgets/         # All widget types
+│   │   │       ├── layout.dart
+│   │   │       ├── content.dart
+│   │   │       ├── input.dart
+│   │   │       └── lists.dart
+│   │   └── pubspec.yaml         # Pure Dart package
+│   │
+│   └── flutter_runtime/         # Flutter runtime (renders JSON)
+│       ├── ui_eval_runtime.dart
+│       └── src/
+│           └── runtime_widget.dart
+│
+└── example/
+    ├── mini_app/                # Example mini app (type-safe dev)
+    │   ├── lib/todo_app.dart
+    │   ├── build.dart           # Build script
+    │   └── pubspec.yaml
+    │
+    ├── host_app/                # Example Flutter host
+    │   ├── lib/main.dart
+    │   ├── assets/apps/         # JSON apps
+    │   └── pubspec.yaml
+    │
+    └── server/                  # Update server
+        └── update_server.dart
+```
+
+## Quick Start
+
+### 1. Create a Mini App
+
+```dart
+// mini_app/lib/my_app.dart
+import 'package:ui_eval/ui_eval.dart';
+
+class MyApp {
+  UIProgram build() {
+    // Define state
+    final counter = UIState<int>(key: 'count', defaultValue: 0);
+    
+    // Define actions
+    final increment = UIAction(name: 'increment');
+    
+    // Build UI
+    return UIProgram(
+      name: 'CounterApp',
+      version: '1.0.0',
+      states: [counter],
+      actions: [increment],
+      root: UIScaffold(
+        appBar: UIAppBar(title: 'Counter'),
+        body: UICenter(
+          child: UIColumn(
+            children: [
+              UIText.state(counter, fontSize: 48),
+              UIButton(
+                onPressed: increment(),
+                child: UIText('Increment'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+void main() {
+  final app = MyApp().build();
+  print(jsonEncode(app.toJson()));
+}
+```
+
+### 2. Build to JSON
+
+```bash
+cd example/mini_app
+dart build.dart
+# Output: ../host_app/assets/apps/todo_app.json
+```
+
+### 3. Run in Host App
+
+```dart
+// host_app/main.dart
+import 'package:ui_eval_runtime/ui_eval_runtime.dart';
+
+UIRuntimeWidget(
+  uiJson: jsonDecode(await rootBundle.loadString('assets/apps/todo_app.json')),
+  initialState: {'count': 0},
+  actions: {
+    'increment': (_) => setState(() => count++),
+  },
+)
+```
+
+## Widget Reference
+
+### Layout
+- `UIScaffold`, `UIAppBar`, `UISafeArea`
+- `UIColumn`, `UIRow`, `UIStack`, `UIPositioned`
+- `UIContainer`, `UICenter`, `UIAlign`, `UIPadding`
+- `UIExpanded`, `UISizedBox`, `UIDivider`
+
+### Content
+- `UIText`, `UIIcon`, `UIImage`
+- `UICard`, `UIChip`, `UIBadge`
+
+### Input
+- `UIButton`, `UITextButton`, `UIIconButton`, `UIFloatingActionButton`
+- `UITextField`, `UICheckbox`, `UISwitch`, `UIRadio`, `UISlider`
+
+### Lists
+- `UIListView`, `UIListTile`, `UIGridView`
+- `UITabBar`, `UIBottomNavigationBar`
+
+## State Management
+
+```dart
+// Define state
+final todos = UIState<List>(key: 'todos', defaultValue: []);
+final title = UIState<String>(key: 'title', defaultValue: '');
+
+// Reference in UI
+UIText.state(todos)           // {{todos}}
+UIText.ref(todos.prop('length'))  // {{todos.length}}
+UIText.ref(todos.index(0).prop('title'))  // {{todos.0.title}}
+```
+
+## Actions
+
+```dart
+// Define action
+final addTodo = UIAction(
+  name: 'addTodo',
+  params: [UIActionParam(name: 'title', type: 'String')],
+);
+
+// Use in UI
+UIButton(
+  onPressed: addTodo(args: {'title': 'New task'}),
+  child: UIText('Add'),
+)
+
+// Handle in host
+UIRuntimeWidget(
+  actions: {
+    'addTodo': (params) {
+      final title = params['title'];
+      // Handle action
+    },
+  },
+)
+```
+
+## Hot Updates
+
+```dart
+UIEvalWidget(
+  json: initialJson,
+  updateUrl: 'https://your-server.com',
+  version: '1.0.0',
+)
+```
+
+Run the update server:
+```bash
+dart example/server/update_server.dart
+```
+
+## Benefits
+
+1. **Type Safety** - Catch errors at compile time, not runtime
+2. **Hot Updates** - Push UI changes without app store
+3. **Clean Separation** - Mini apps don't depend on Flutter
+4. **Server-Driven** - Control UI from backend
+5. **Version Control** - Track UI versions independently
 
 ## License
 
