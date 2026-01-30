@@ -1,22 +1,25 @@
 name: ui_eval_example
-description: Example app for ui_eval - Type-safe UI DSL for Flutter
-publish_to: 'none'
-
+description: Host app for ui_eval multimodule example
 version: 1.0.0+1
+publish_to: 'none'
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
   flutter: ">=3.0.0"
 
 dependencies:
-  cupertino_icons: 1.0.6
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.6
   ui_eval:
-    path: ../
+    path: ../packages/ui_eval
+  todo_app:
+    path: modules/todo_app
+  counter_app:
+    path: modules/counter_app
 
 dev_dependencies:
-  flutter_lints: 3.0.0
+  flutter_lints: ^3.0.0
   flutter_test:
     sdk: flutter
 
@@ -24,4 +27,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/apps/
-    - assets/ts_logic/logic_bundle.js
+    - assets/logic/

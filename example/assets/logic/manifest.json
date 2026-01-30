@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-01-30T15:45:01.227Z",
+  "modules": [
+    {
+      "name": "counter_app",
+      "logicFile": "assets/logic/counter_app.js"
+    },
+    {
+      "name": "todo_app",
+      "logicFile": "assets/logic/todo_app.js"
+    }
+  ]
+}

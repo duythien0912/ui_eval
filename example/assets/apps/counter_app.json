@@ -1,163 +1,46 @@
 {
-  "name": "CounterApp",
+  "id": "counter_app",
+  "name": "Counter App",
   "version": "1.0.0",
-  "metadata": {
-    "title": "Counter",
-    "description": "Simple counter example"
-  },
   "states": [
-    {
-      "key": "count",
-      "defaultValue": 0,
-      "type": "int"
-    }
-  ],
-  "actions": [
-    {
-      "name": "increment",
-      "params": []
-    },
-    {
-      "name": "decrement",
-      "params": []
-    },
-    {
-      "name": "reset",
-      "params": []
-    }
+    {"key": "count", "defaultValue": 0, "type": "int"},
+    {"key": "step", "defaultValue": 1, "type": "int"}
   ],
   "root": {
-    "type": "Scaffold",
+    "type": "scaffold",
     "appBar": {
-      "type": "AppBar",
-      "title": "Hiiiii Counter",
-      "backgroundColor": {
-        "_color": 4280391411
-      },
-      "foregroundColor": {
-        "_color": 4294967295
-      }
+      "type": "appBar",
+      "title": "Counter",
+      "backgroundColor": "blue"
     },
     "body": {
-      "type": "Center",
-      "child": {
-        "type": "Column",
-        "children": [
-          {
-            "type": "Text",
-            "data": "You have pushed the button this many times:",
-            "color": {
-              "_color": 4288585374
-            }
-          },
-          {
-            "type": "SizedBox",
-            "height": 16.0
-          },
-          {
-            "type": "Text",
-            "data": {
-              "_ref": "count"
-            },
-            "fontSize": 72.0,
-            "color": {
-              "_color": 4280391411
-            },
-            "fontWeight": 6
-          },
-          {
-            "type": "SizedBox",
-            "height": 32.0
-          },
-          {
-            "type": "Row",
-            "children": [
-              {
-                "type": "ElevatedButton",
-                "child": {
-                  "type": "Icon",
-                  "icon": {
-                    "codePoint": 57676
-                  },
-                  "color": {
-                    "_color": 4294967295
-                  }
-                },
-                "onPressed": {
-                  "_action": "decrement"
-                },
-                "backgroundColor": {
-                  "_color": 4294198070
-                }
-              },
-              {
-                "type": "SizedBox",
-                "width": 16.0
-              },
-              {
-                "type": "ElevatedButton",
-                "child": {
-                  "type": "Text",
-                  "data": "RESET",
-                  "color": {
-                    "_color": 4294967295
-                  }
-                },
-                "onPressed": {
-                  "_action": "reset"
-                },
-                "backgroundColor": {
-                  "_color": 4288585374
-                }
-              },
-              {
-                "type": "SizedBox",
-                "width": 16.0
-              },
-              {
-                "type": "ElevatedButton",
-                "child": {
-                  "type": "Icon",
-                  "icon": {
-                    "codePoint": 57669
-                  },
-                  "color": {
-                    "_color": 4294967295
-                  }
-                },
-                "onPressed": {
-                  "_action": "increment"
-                },
-                "backgroundColor": {
-                  "_color": 4283215696
-                }
-              }
-            ],
-            "mainAxisAlignment": 2,
-            "crossAxisAlignment": 2,
-            "mainAxisSize": 1
-          }
-        ],
-        "mainAxisAlignment": 0,
-        "crossAxisAlignment": 2,
-        "mainAxisSize": 0
-      }
-    },
-    "floatingActionButton": {
-      "type": "FloatingActionButton",
-      "onPressed": {
-        "_action": "increment"
-      },
-      "icon": {
-        "codePoint": 57669
-      },
-      "backgroundColor": {
-        "_color": 4280391411
-      },
-      "foregroundColor": {
-        "_color": 4294967295
-      },
-      "mini": false
+      "type": "column",
+      "mainAxisAlignment": "center",
+      "crossAxisAlignment": "center",
+      "children": [
+        {"type": "text", "text": "{{state.count}}", "fontSize": 72, "fontWeight": "bold"},
+        {"type": "sizedBox", "height": 32},
+        {
+          "type": "row",
+          "mainAxisAlignment": "center",
+          "children": [
+            {"type": "iconButton", "icon": "remove", "size": 48, "onTap": {"action": "decrement"}},
+            {"type": "sizedBox", "width": 32},
+            {"type": "button", "text": "Reset", "type_": "outlined", "onTap": {"action": "reset"}},
+            {"type": "sizedBox", "width": 32},
+            {"type": "iconButton", "icon": "add", "size": 48, "onTap": {"action": "increment"}}
+          ]
+        },
+        {"type": "sizedBox", "height": 24},
+        {"type": "text", "text": "Step: {{state.step}}"},
+        {
+          "type": "slider",
+          "value": "{{state.step}}",
+          "min": 1,
+          "max": 10,
+          "onChanged": {"action": "setStep", "params": {"step": "{{value}}"}}
+        }
+      ]
     }
   }
 }

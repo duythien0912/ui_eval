@@ -1,0 +1,297 @@
+# ui_eval Multimodule Monorepo - Git Ignore
+
+# ============================================================================
+# FLUTTER / DART
+# ============================================================================
+
+# Flutter/Dart build artifacts
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/pubspec.lock
+
+# iOS build artifacts
+**/ios/Flutter/.last_build_id
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/App.framework
+**/ios/Flutter/engine/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/Runner.xcworkspace/xcshareddata/
+
+# Android build artifacts
+**/android/.gradle/
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/GeneratedPluginRegistrant.java
+**/android/key.properties
+**/*.jks
+**/*.keystore
+
+# macOS build artifacts
+**/macos/Flutter/ephemeral/
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Pods/
+
+# Windows build artifacts
+**/windows/flutter/ephemeral/
+**/windows/Flutter/GeneratedPluginRegistrant.cpp
+**/windows/Flutter/GeneratedPluginRegistrant.h
+
+# Linux build artifacts
+**/linux/flutter/ephemeral/
+**/linux/Flutter/GeneratedPluginRegistrant.cpp
+**/linux/Flutter/GeneratedPluginRegistrant.h
+
+# Web build artifacts
+**/web/.dart_tool/
+
+# Coverage
+**/coverage/
+**/.coverage/
+
+# Symbolication related
+**/app.*.symbols
+
+# Obfuscation related
+**/app.*.map.json
+
+# Android Studio will place build artifacts here
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+
+# ============================================================================
+# TYPESCRIPT / NODE.JS
+# ============================================================================
+
+# Dependencies
+**/node_modules/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+
+# Build outputs
+ts_sdk/dist/
+example/assets/logic/*.js
+example/assets/logic/*.js.map
+example/assets/logic/*.d.ts
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# ============================================================================
+# IDE / EDITOR
+# ============================================================================
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.history/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Xcode
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/*sync/
+**/ios/**/.sconsign.dblite
+**/ios/**/.tags*
+**/ios/**/xcuserdata/
+**/ios/**/DerivedData/
+**/ios/**/Icon?
+**/ios/**/Pods/
+**/ios/**/.symlinks/
+**/ios/**/profile
+**/ios/**/xcuserdata
+**/ios/.generated/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+trans/
+
+# Vim
+*.swp
+*.swo
+*.swn
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# ============================================================================
+# OS SPECIFIC
+# ============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.nfs*
+.directory
+.Trash-*
+
+# ============================================================================
+# TESTING
+# ============================================================================
+
+# Test outputs
+**/test-results/
+**/test_outputs/
+
+# Screenshots from tests
+**/screenshots/
+
+# ============================================================================
+# ENVIRONMENT / SECRETS
+# ============================================================================
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.*.local
+
+# Secret files
+*.secret
+*.key
+secrets.yaml
+secrets.yml
+secrets.json
+
+# API Keys and credentials
+google-services.json
+GoogleService-Info.plist
+
+# Keystore files (Android signing)
+*.jks
+*.keystore
+key.properties
+
+# ============================================================================
+# DOCUMENTATION / GENERATED
+# ============================================================================
+
+# Documentation build outputs
+doc/api/
+
+# Generated code
+**/*.g.dart
+**/*.freezed.dart
+**/*.gr.dart
+**/*.pb.dart
+**/*.pbenum.dart
+**/*.pbjson.dart
+**/*.pbserver.dart
+
+# Build scripts
+**/build_script.sh
+
+# ============================================================================
+# TEMPORARY
+# ============================================================================
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+*.cache
+
+# ============================================================================
+# CUSTOM (Project Specific)
+# ============================================================================
+
+# Don't ignore the manifest (track it)
+!example/assets/logic/manifest.json

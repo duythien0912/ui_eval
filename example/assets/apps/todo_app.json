@@ -1,191 +1,66 @@
 {
-  "name": "TodoApp",
+  "id": "todo_app",
+  "name": "Todo App",
   "version": "1.0.0",
-  "metadata": {
-    "title": "Todo App",
-    "description": "Simple todo list"
-  },
   "states": [
-    {
-      "key": "todos",
-      "defaultValue": [],
-      "type": "List<Map<String, dynamic>>"
-    },
-    {
-      "key": "newTodoTitle",
-      "defaultValue": "",
-      "type": "String"
-    }
-  ],
-  "actions": [
-    {
-      "name": "addTodo",
-      "params": []
-    },
-    {
-      "name": "toggleTodo",
-      "params": [
-        {
-          "name": "index",
-          "type": "int",
-          "required": true
-        }
-      ]
-    },
-    {
-      "name": "deleteTodo",
-      "params": [
-        {
-          "name": "index",
-          "type": "int",
-          "required": true
-        }
-      ]
-    },
-    {
-      "name": "updateTitle",
-      "params": [
-        {
-          "name": "value",
-          "type": "String",
-          "required": true
-        }
-      ]
-    }
+    {"key": "todos", "defaultValue": [], "type": "list"},
+    {"key": "newTodoTitle", "defaultValue": "", "type": "string"},
+    {"key": "filter", "defaultValue": "all", "type": "string"}
   ],
   "root": {
-    "type": "Scaffold",
+    "type": "scaffold",
     "appBar": {
-      "type": "AppBar",
-      "title": "My Todos",
-      "backgroundColor": {
-        "_color": 4278228616
-      },
-      "foregroundColor": {
-        "_color": 4294967295
-      }
+      "type": "appBar",
+      "title": "Todo List",
+      "backgroundColor": "teal"
     },
     "body": {
-      "type": "Column",
+      "type": "column",
       "children": [
         {
-          "type": "Padding",
+          "type": "container",
+          "padding": {"left": 16, "right": 16, "top": 16},
           "child": {
-            "type": "Row",
+            "type": "row",
             "children": [
               {
-                "type": "Expanded",
+                "type": "expanded",
                 "child": {
-                  "type": "TextField",
-                  "hint": "What needs to be done?",
-                  "onChanged": {
-                    "_action": "updateTitle"
-                  },
-                  "obscureText": false,
-                  "maxLines": 1
-                },
-                "flex": 1
-              },
-              {
-                "type": "SizedBox",
-                "width": 8.0
-              },
-              {
-                "type": "ElevatedButton",
-                "child": {
-                  "type": "Text",
-                  "data": "ADD",
-                  "color": {
-                    "_color": 4294967295
-                  }
-                },
-                "onPressed": {
-                  "_action": "addTodo"
-                },
-                "backgroundColor": {
-                  "_color": 4278228616
+                  "type": "textField",
+                  "value": "{{state.newTodoTitle}}",
+                  "hint": "Add a new todo...",
+                  "onChanged": {"action": "updateTitle", "params": {"value": "{{value}}"}}
                 }
-              }
-            ],
-            "mainAxisAlignment": 0,
-            "crossAxisAlignment": 2,
-            "mainAxisSize": 1
-          },
-          "padding": {
-            "left": 16.0,
-            "top": 16.0,
-            "right": 16.0,
-            "bottom": 16.0
+              },
+              {"type": "sizedBox", "width": 8},
+              {"type": "button", "text": "Add", "type_": "primary", "onTap": {"action": "addTodo"}}
+            ]
           }
         },
         {
-          "type": "Divider"
-        },
-        {
-          "type": "Expanded",
-          "child": {
-            "type": "Center",
-            "child": {
-              "type": "Column",
-              "children": [
-                {
-                  "type": "Icon",
-                  "icon": {
-                    "codePoint": 59500
-                  },
-                  "size": 64.0,
-                  "color": {
-                    "_color": 4288585374
-                  }
-                },
-                {
-                  "type": "SizedBox",
-                  "height": 16.0
-                },
-                {
-                  "type": "Text",
-                  "data": "All caught up!",
-                  "fontSize": 18.0,
-                  "color": {
-                    "_color": 4288585374
-                  }
-                },
-                {
-                  "type": "Text",
-                  "data": "Add a task to get started",
-                  "color": {
-                    "_color": 4288585374
-                  }
-                }
-              ],
-              "mainAxisAlignment": 0,
-              "crossAxisAlignment": 2,
-              "mainAxisSize": 0
+          "type": "listView",
+          "shrinkWrap": true,
+          "itemCount": "{{state.todos.length}}",
+          "itemBuilder": {
+            "type": "listTile",
+            "leading": {
+              "type": "checkbox",
+              "value": "{{state.todos[{{index}}].completed}}",
+              "onChanged": {"action": "toggleTodo", "params": {"index": "{{index}}"}}
+            },
+            "title": {
+              "type": "text",
+              "text": "{{state.todos[{{index}}].title}}",
+              "decoration": "{{state.todos[{{index}}].completed ? 'lineThrough' : 'none'}}"
+            },
+            "trailing": {
+              "type": "iconButton",
+              "icon": "delete",
+              "onTap": {"action": "deleteTodo", "params": {"index": "{{index}}"}}
             }
-          },
-          "flex": 1
+          }
         }
-      ],
-      "mainAxisAlignment": 0,
-      "crossAxisAlignment": 2,
-      "mainAxisSize": 1
-    },
-    "floatingActionButton": {
-      "type": "FloatingActionButton",
-      "onPressed": {
-        "_action": "addTodo"
-      },
-      "icon": {
-        "codePoint": 57669
-      },
-      "backgroundColor": {
-        "_color": 4278228616
-      },
-      "foregroundColor": {
-        "_color": 4294967295
-      },
-      "tooltip": "Add Todo",
-      "mini": false
+      ]
     }
   }
 }
