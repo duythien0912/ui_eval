@@ -55,7 +55,7 @@ class AppLauncherPage extends StatelessWidget {
       description: 'Simple counter with TypeScript logic',
       icon: Icons.add_circle,
       color: Colors.blue,
-      bundlePath: 'assets/logic/counter_app.bundle',
+      bundlePath: 'assets/counter_app.bundle',
     ),
     MiniAppInfo(
       id: 'todo',
@@ -63,7 +63,7 @@ class AppLauncherPage extends StatelessWidget {
       description: 'Todo list with add/delete (TypeScript)',
       icon: Icons.check_circle,
       color: Colors.teal,
-      bundlePath: 'assets/logic/todo_app.bundle',
+      bundlePath: 'assets/todo_app.bundle',
     ),
   ];
 
