@@ -2,8 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:ui_eval/runtime.dart';
-import 'package:todo_app/todo_ui.dart';
-import 'package:counter_app/counter_ui.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +33,7 @@ class MiniAppInfo {
   final String description;
   final IconData icon;
   final Color color;
-  final Widget Function() builder;
+  final String bundlePath;
 
   const MiniAppInfo({
     required this.id,
@@ -43,7 +41,7 @@ class MiniAppInfo {
     required this.description,
     required this.icon,
     required this.color,
-    required this.builder,
+    required this.bundlePath,
   });
 }
 
@@ -57,7 +55,7 @@ class AppLauncherPage extends StatelessWidget {
       description: 'Simple counter with TypeScript logic',
       icon: Icons.add_circle,
       color: Colors.blue,
-      builder: () => const CounterMiniApp(),
+      bundlePath: 'assets/logic/counter_app.bundle',
     ),
     MiniAppInfo(
       id: 'todo',
@@ -65,7 +63,7 @@ class AppLauncherPage extends StatelessWidget {
       description: 'Todo list with add/delete (TypeScript)',
       icon: Icons.check_circle,
       color: Colors.teal,
-      builder: () => const TodoMiniApp(),
+      bundlePath: 'assets/logic/todo_app.bundle',
     ),
   ];
 
@@ -112,11 +110,53 @@ class AppLauncherPage extends StatelessWidget {
               ),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => app.builder()),
+                MaterialPageRoute(
+                  builder: (_) => BundleAppPage(
+                    title: app.name,
+                    bundlePath: app.bundlePath,
+                  ),
+                ),
               ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Page that loads a mini-app from a bundle file
+class BundleAppPage extends StatelessWidget {
+  final String title;
+  final String bundlePath;
+
+  const BundleAppPage({
+    super.key,
+    required this.title,
+    required this.bundlePath,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: UIBundleLoader(
+        bundlePath: bundlePath,
+        errorBuilder: (error) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 48),
+              const SizedBox(height: 16),
+              Text('Error loading app', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 8),
+              Text(error, style: Theme.of(context).textTheme.bodyMedium),
+            ],
+          ),
+        ),
       ),
     );
   }

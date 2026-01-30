@@ -1,3 +1,4 @@
+// @ts-ignore
 import { createModule } from '@ui_eval/sdk';
 
 const { defineAction, states, log, moduleId } = createModule('counter');
@@ -28,7 +29,7 @@ export const reset = defineAction('reset', async () => {
   log('🔄 Counter reset');
 });
 
-export const setStep = defineAction('setStep', async (_ctx, params) => {
+export const setStep = defineAction('setStep', async (_ctx: any, params: { step: number; }) => {
   const step = (params?.step as number) ?? 1;
   await states.set('step', step);
   log('📐 Step set to:', step);
@@ -42,7 +43,7 @@ export const double = defineAction('double', async () => {
   log('✖️ Doubled:', count, '→', newCount);
 });
 
-export const setValue = defineAction('setValue', async (_ctx, params) => {
+export const setValue = defineAction('setValue', async (_ctx: any, params: { value: number; }) => {
   const value = (params?.value as number) ?? 0;
   await states.set('count', value);
   await _addToHistory(value);

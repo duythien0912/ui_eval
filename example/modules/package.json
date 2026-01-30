@@ -1,0 +1,8 @@
+{
+  "name": "ui_eval_modules",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@ui_eval/sdk": "file:../../ts_sdk"
+  }
+}

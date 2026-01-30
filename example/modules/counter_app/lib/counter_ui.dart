@@ -1,21 +1,21 @@
 // ignore_for_file: avoid_print
 
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:ui_eval/ui_eval.dart';
 
 /// Counter Mini App using type-safe ui_eval DSL
 /// 
-/// This demonstrates how developers can build UI using Dart DSL classes
-/// which can then be compiled to JSON DSL for runtime loading.
+/// This file defines the UI using type-safe Dart DSL classes.
 /// 
-/// To compile to JSON, run:
-/// ```bash
-/// cd example/modules/counter_app
-/// dart run lib/counter_ui.dart --compile
-/// ```
-class CounterMiniApp extends StatelessWidget {
-  const CounterMiniApp({super.key});
+/// Build command (run from example/ directory):
+///   cd scripts && node build.js counter_app
+/// 
+/// Or build all:
+///   cd scripts && node build.js
+/// 
+/// The DSL is auto-compiled to JSON and bundled with TypeScript logic.
+class CounterMiniApp {
+  const CounterMiniApp();
 
   /// The UI program definition using type-safe DSL
   UIProgram get program => UIProgram(
@@ -128,13 +128,6 @@ class CounterMiniApp extends StatelessWidget {
       ),
     ).toJson(),
   );
-
-  @override
-  Widget build(BuildContext context) {
-    // In development mode, we could render directly from DSL
-    // For now, we use the bundle loader which loads the compiled version
-    return const SizedBox.shrink();
-  }
 }
 
 /// Extension to compile the DSL program to JSON string
@@ -147,25 +140,9 @@ extension CounterMiniAppCompiler on CounterMiniApp {
 }
 
 /// Main entry point for compilation
-/// Run: dart run lib/counter_ui.dart
-void main(List<String> args) {
-  if (args.contains('--compile')) {
-    final app = CounterMiniApp();
-    final json = app.compileToJson();
-    
-    // Write to file
-    final outputFile = 'assets/apps/counter_app.json';
-    // Note: In real usage, write to the correct path
-    print('Compiled JSON:');
-    print(json);
-    print('\n// Save this to: $outputFile');
-  } else {
-    print('Counter Mini App DSL');
-    print('');
-    print('Usage:');
-    print('  dart run lib/counter_ui.dart --compile  # Compile to JSON');
-    print('');
-    print('The DSL program can be accessed via:');
-    print('  CounterMiniApp().program');
-  }
+/// Run: dart lib/counter_ui.dart
+void main() {
+  final app = CounterMiniApp();
+  final json = app.compileToJson();
+  print(json);
 }

@@ -1,3 +1,4 @@
+// @ts-ignore
 import { createModule } from '@ui_eval/sdk';
 
 export interface Todo {
@@ -27,7 +28,7 @@ export const addTodo = defineAction('addTodo', async () => {
   log('✅ Added todo:', newTodo.title);
 });
 
-export const toggleTodo = defineAction('toggleTodo', async (_ctx, params) => {
+export const toggleTodo = defineAction('toggleTodo', async (_ctx: any, params: { index: number; }) => {
   const index = params?.index as number;
   if (typeof index !== 'number') {
     log('❌ Invalid index');
@@ -44,7 +45,7 @@ export const toggleTodo = defineAction('toggleTodo', async (_ctx, params) => {
   log('✅ Toggled todo at index:', index);
 });
 
-export const deleteTodo = defineAction('deleteTodo', async (_ctx, params) => {
+export const deleteTodo = defineAction('deleteTodo', async (_ctx: any, params: { index: number; }) => {
   const index = params?.index as number;
   if (typeof index !== 'number') {
     log('❌ Invalid index');
@@ -61,12 +62,12 @@ export const deleteTodo = defineAction('deleteTodo', async (_ctx, params) => {
   log('🗑️ Deleted todo:', deleted.title);
 });
 
-export const updateTitle = defineAction('updateTitle', async (_ctx, params) => {
+export const updateTitle = defineAction('updateTitle', async (_ctx: any, params: { value: string; }) => {
   const value = params?.value as string ?? '';
   await states.set('newTodoTitle', value);
 });
 
-export const setFilter = defineAction('setFilter', async (_ctx, params) => {
+export const setFilter = defineAction('setFilter', async (_ctx: any, params: { filter: string; }) => {
   const filter = params?.filter as 'all' | 'active' | 'completed';
   await states.set('filter', filter);
   log('🔍 Filter set to:', filter);

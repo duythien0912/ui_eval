@@ -430,7 +430,7 @@ class UITextField extends UIWidget {
   @override
   final String type = 'textField';
   
-  final String? value;
+  final dynamic value;
   final String? hint;
   final String? label;
   final UITextInputType? keyboardType;
@@ -466,7 +466,7 @@ class UICheckbox extends UIWidget {
   @override
   final String type = 'checkbox';
   
-  final bool? value;
+  final dynamic value;
   final UIActionTrigger? onChanged;
 
   const UICheckbox({
@@ -487,7 +487,7 @@ class UISwitch extends UIWidget {
   @override
   final String type = 'switch';
   
-  final bool? value;
+  final dynamic value;
   final UIActionTrigger? onChanged;
 
   const UISwitch({
@@ -508,7 +508,7 @@ class UISlider extends UIWidget {
   @override
   final String type = 'slider';
   
-  final double? value;
+  final dynamic value;
   final double min;
   final double max;
   final int? divisions;

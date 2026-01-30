@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "lib": ["ES2020", "DOM"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@ui_eval/sdk": ["../../ts_sdk/dist/index.js"],
+      "@ui_eval/sdk/*": ["../../ts_sdk/dist/*.js"]
+    }
+  },
+  "include": [
+    "*/lib/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
