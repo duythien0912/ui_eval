@@ -1,0 +1,9 @@
+name: update_server
+description: Hot update server for ui_eval example
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  path: ^1.8.3
