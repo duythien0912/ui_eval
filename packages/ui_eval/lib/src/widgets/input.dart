@@ -31,7 +31,12 @@ class UIInput {
               final actionName = onChangedAction['action'] as String;
               final params = Map<String, dynamic>.from(
                   onChangedAction['params'] as Map<String, dynamic>? ?? {});
-              params['value'] = value;
+              // Process template values like "{{value}}" in params
+              params.forEach((key, val) {
+                if (val is String && val.contains('{{value}}')) {
+                  params[key] = value;
+                }
+              });
               onAction(actionName, params);
             }
           : null,
@@ -55,7 +60,12 @@ class UIInput {
               final actionName = onChangedAction['action'] as String;
               final params = Map<String, dynamic>.from(
                   onChangedAction['params'] as Map<String, dynamic>? ?? {});
-              params['value'] = newValue;
+              // Process template values like "{{value}}" in params
+              params.forEach((key, val) {
+                if (val is String && val.contains('{{value}}')) {
+                  params[key] = newValue;
+                }
+              });
               onAction(actionName, params);
             }
           : null,
@@ -79,7 +89,12 @@ class UIInput {
               final actionName = onChangedAction['action'] as String;
               final params = Map<String, dynamic>.from(
                   onChangedAction['params'] as Map<String, dynamic>? ?? {});
-              params['value'] = newValue;
+              // Process template values like "{{value}}" in params
+              params.forEach((key, val) {
+                if (val is String && val.contains('{{value}}')) {
+                  params[key] = newValue;
+                }
+              });
               onAction(actionName, params);
             }
           : null,
@@ -109,7 +124,12 @@ class UIInput {
               final actionName = onChangedAction['action'] as String;
               final params = Map<String, dynamic>.from(
                   onChangedAction['params'] as Map<String, dynamic>? ?? {});
-              params['value'] = newValue;
+              // Process template values like "{{value}}" in params
+              params.forEach((key, val) {
+                if (val is String && val.contains('{{value}}')) {
+                  params[key] = newValue;
+                }
+              });
               onAction(actionName, params);
             }
           : null,

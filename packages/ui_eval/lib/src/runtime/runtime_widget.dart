@@ -36,6 +36,18 @@ class _UIRuntimeWidgetState extends State<UIRuntimeWidget> {
     _state = Map<String, dynamic>.from(widget.initialState ?? {});
   }
 
+  @override
+  void didUpdateWidget(UIRuntimeWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Sync state when initialState prop changes from parent
+    if (widget.initialState != null) {
+      final newState = Map<String, dynamic>.from(widget.initialState!);
+      if (newState.toString() != _state.toString()) {
+        setState(() => _state = newState);
+      }
+    }
+  }
+
   void _updateState(String key, dynamic value) {
     setState(() {
       _state[key] = value;
