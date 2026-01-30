@@ -1,25 +1,27 @@
 name: ui_eval_example
-description: Example app demonstrating ui_eval with hot updates
+description: Example app for ui_eval - Type-safe UI DSL for Flutter
 publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.0.0"
 
 dependencies:
+  cupertino_icons: 1.0.6
   flutter:
     sdk: flutter
   ui_eval:
     path: ../
-  cupertino_icons: ^1.0.6
 
 dev_dependencies:
+  flutter_lints: 3.0.0
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/
+    - assets/apps/
+    - assets/ts_logic/logic_bundle.js
