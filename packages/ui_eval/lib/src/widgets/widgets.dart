@@ -11,6 +11,11 @@ import 'template_processor.dart';
 class UIWidgets {
   static final _templateProcessor = TemplateProcessor();
 
+  // ✅ FIX: Ensure template processor is initialized on first use
+  static void _ensureInitialized() {
+    _templateProcessor.initialize();
+  }
+
   static Widget build({
     required String type,
     required Map<String, dynamic> def,
@@ -19,6 +24,7 @@ class UIWidgets {
     required Function(String key, dynamic value) onStateChange,
     required dynamic Function(String key) getState,
   }) {
+    _ensureInitialized();  // ✅ Initialize on every build
     switch (type) {
       // Layout widgets
       case 'scaffold':

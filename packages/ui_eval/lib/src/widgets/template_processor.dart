@@ -42,10 +42,13 @@ class TemplateProcessor {
     if (!value.contains('{{')) return value;
 
     try {
-      // Handle special variables (index, value, etc.)
+      // Create nested state structure for Jinja
+      // This allows both {{state.todos[index]}} and {{index}} to work
       final contextState = <String, dynamic>{
         'state': state,
-        ...state, // Also make top-level vars available
+        // Extract special variables to top level for bracket notation
+        if (state.containsKey('index')) 'index': state['index'],
+        if (state.containsKey('value')) 'value': state['value'],
       };
 
       final template = _env.fromString(value);

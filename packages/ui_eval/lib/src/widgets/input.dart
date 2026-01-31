@@ -52,8 +52,10 @@ class UIInput {
     Function(String, dynamic) onStateChange,
     dynamic Function(String) getState,
   ) {
-    final value =
-        bool.tryParse(UIWidgets.processRefs(def['value'], state)) ?? false;
+    final processedValue = UIWidgets.processRefs(def['value'], state);
+    final value = processedValue is bool
+        ? processedValue
+        : (bool.tryParse(processedValue?.toString() ?? '') ?? false);
     final onChangedAction = def['onChanged'] as Map<String, dynamic>?;
 
     return Checkbox(

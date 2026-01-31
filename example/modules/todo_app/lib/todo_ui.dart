@@ -85,24 +85,24 @@ class TodoMiniApp {
           UIExpanded(
             child: UIListView(
               shrinkWrap: false,
-              itemCount: state[State.todos].length.toString(),
+              itemCount: '{{state.todos.length}}',
               itemBuilder: UIListTile(
                 leading: UICheckbox(
-                  value: state[State.todos][index]['completed'].toString(),
+                  value: '{{state.todos[index].completed}}',
                   onChanged: UIActionTrigger(
                     action: Action.toggleTodo,
-                    params: {'index': index},
+                    params: {'index': '{{index}}'},
                   ),
                 ),
                 title: UIText(
-                  text: state[State.todos][index]['title'].toString(),
+                  text: '{{state.todos[index].title}}',
                 ),
                 trailing: UIIconButton(
                   icon: 'delete',
                   color: 'red',
                   onTap: UIActionTrigger(
                     action: Action.deleteTodo,
-                    params: {'index': index},
+                    params: {'index': '{{index}}'},
                   ),
                 ),
               ),
