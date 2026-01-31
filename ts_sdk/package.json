@@ -4,10 +4,19 @@
   "description": "TypeScript SDK for Flutter UI DSL",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "bin": {
+    "ui-eval-build": "./bin/build.js"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "esbuild": "^0.20.0"
   },
   "devDependencies": {
     "typescript": "^5.3.0"
