@@ -40,21 +40,31 @@ class _UIRuntimeWidgetState extends State<UIRuntimeWidget> {
   @override
   void didUpdateWidget(UIRuntimeWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+    debugPrint('[UIRuntimeWidget] didUpdateWidget called');
+    debugPrint('[UIRuntimeWidget] Old state: ${oldWidget.initialState}');
+    debugPrint('[UIRuntimeWidget] New state: ${widget.initialState}');
+
     // Sync state when initialState prop changes from parent
     if (widget.initialState != null) {
       final newState = Map<String, dynamic>.from(widget.initialState!);
-      // Check if state actually changed by comparing key values
+      // Check if state actually changed by comparing key values using deep equality
       bool hasChanged = newState.length != _state.length;
       if (!hasChanged) {
         for (final entry in newState.entries) {
-          if (_state[entry.key] != entry.value) {
+          if (!_deepEquals(_state[entry.key], entry.value)) {
             hasChanged = true;
+            debugPrint('[UIRuntimeWidget] State changed for key: ${entry.key}');
+            debugPrint('[UIRuntimeWidget]   Old value: ${_state[entry.key]}');
+            debugPrint('[UIRuntimeWidget]   New value: ${entry.value}');
             break;
           }
         }
       }
       if (hasChanged) {
+        debugPrint('[UIRuntimeWidget] ✅ Calling setState with new state: $newState');
         setState(() => _state = newState);
+      } else {
+        debugPrint('[UIRuntimeWidget] ⚠️ No state changes detected');
       }
     }
   }
@@ -67,6 +77,32 @@ class _UIRuntimeWidgetState extends State<UIRuntimeWidget> {
 
   dynamic _getState(String key) {
     return _state[key];
+  }
+
+  /// Deep equality check for state values (handles Lists and Maps)
+  bool _deepEquals(dynamic a, dynamic b) {
+    if (identical(a, b)) return true;
+    if (a == null || b == null) return a == b;
+
+    if (a is List && b is List) {
+      if (a.length != b.length) return false;
+      for (int i = 0; i < a.length; i++) {
+        if (!_deepEquals(a[i], b[i])) return false;
+      }
+      return true;
+    }
+
+    if (a is Map && b is Map) {
+      if (a.length != b.length) return false;
+      for (final key in a.keys) {
+        if (!b.containsKey(key) || !_deepEquals(a[key], b[key])) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    return a == b;
   }
 
   Future<void> _invokeAction(String actionName, Map<String, dynamic>? params) async {
@@ -289,10 +325,12 @@ class _UIBundleLoaderState extends State<UIBundleLoader> {
 
   Future<void> _executeAction(String name, [Map<String, dynamic>? params]) async {
     try {
+      debugPrint('[${_bundle!.moduleId}] 🎯 Executing action: $name with params: $params');
       await LogicCoordinator().executeAction(_bundle!.moduleId, name, params);
+      debugPrint('[${_bundle!.moduleId}] ✅ Action completed: $name');
       await _syncStateFromTs();
     } catch (e) {
-      debugPrint('[${_bundle!.moduleId}] Error executing $name: $e');
+      debugPrint('[${_bundle!.moduleId}] ❌ Error executing $name: $e');
     }
   }
 
@@ -304,7 +342,11 @@ class _UIBundleLoaderState extends State<UIBundleLoader> {
       final shortKey = key.substring(moduleId.length + 1);
       moduleState[shortKey] = StateManager().get(key);
     }
-    setState(() => _state = moduleState);
+    debugPrint('[$moduleId] 🔄 Syncing state from TS: $moduleState');
+    setState(() {
+      _state = moduleState;
+      debugPrint('[$moduleId] ✅ State updated in UIBundleLoader: $_state');
+    });
   }
 
   /// Builds a dynamic action map that can handle any action name.

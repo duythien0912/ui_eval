@@ -87,27 +87,78 @@ class UIWidgets {
   }
 
   /// Process a value that may contain state references like {{state.key}}
+  /// Now supports nested paths: {{state.todos.length}}, {{state.todos[index].title}}
   static dynamic processRefs(dynamic value, Map<String, dynamic> state) {
     if (value is String) {
-      // Check if the entire string is a single state reference
-      final singleRefMatch = RegExp(r'^\{\{\s*state\.(\w+)\s*\}\}$').firstMatch(value);
+      // Enhanced regex to handle nested properties and array indexing
+      final singleRefPattern = RegExp(r'^\{\{\s*state\.([\w\[\]\.]+)\s*\}\}$');
+      final singleRefMatch = singleRefPattern.firstMatch(value);
+
       if (singleRefMatch != null) {
-        final key = singleRefMatch.group(1)!;
-        return state[key];
+        final path = singleRefMatch.group(1)!;
+        return _resolveNestedPath(path, state);
       }
-      
-      // Handle {{state.key}} references - replace all occurrences in the string
+
+      // Handle {{state.path}} references - replace all occurrences in the string
       final result = value.replaceAllMapped(
-        RegExp(r'\{\{\s*state\.(\w+)\s*\}\}'),
+        RegExp(r'\{\{\s*state\.([\w\[\]\.]+)\s*\}\}'),
         (match) {
-          final key = match.group(1)!;
-          final stateValue = state[key];
-          return stateValue?.toString() ?? '';
+          final path = match.group(1)!;
+          final resolvedValue = _resolveNestedPath(path, state);
+          return resolvedValue?.toString() ?? '';
         },
       );
       return result;
     }
     return value;
+  }
+
+  /// Resolve nested property paths like "todos.length" or "todos[index].title"
+  static dynamic _resolveNestedPath(String path, Map<String, dynamic> state) {
+    try {
+      dynamic current = state;
+
+      // Split by dots and brackets to handle paths like "todos.length" or "todos[0].title"
+      final parts = path.split(RegExp(r'[\.\[\]]')).where((s) => s.isNotEmpty).toList();
+
+      for (final part in parts) {
+        if (current == null) return null;
+
+        // Check if it's an array index
+        final indexMatch = RegExp(r'^\d+$').hasMatch(part);
+        if (indexMatch) {
+          final index = int.parse(part);
+          if (current is List && index >= 0 && index < current.length) {
+            current = current[index];
+          } else {
+            return null;
+          }
+        }
+        // Check if it's a special property like "length"
+        else if (part == 'length') {
+          if (current is List) {
+            return current.length;
+          } else if (current is Map) {
+            return current.length;
+          } else if (current is String) {
+            return current.length;
+          } else {
+            return null;
+          }
+        }
+        // Regular property access
+        else if (current is Map<String, dynamic>) {
+          current = current[part];
+        } else {
+          return null;
+        }
+      }
+
+      return current;
+    } catch (e) {
+      debugPrint('Error resolving path "$path": $e');
+      return null;
+    }
   }
 
   /// Get color from string value
@@ -135,48 +186,57 @@ class UIWidgets {
       case 'gray': return Colors.grey;
       case 'black': return Colors.black;
       case 'white': return Colors.white;
-      case 'transparent': return Colors.transparent;
       default: return null;
     }
   }
 
-  /// Get icon from string name
-  static IconData? parseIcon(String? iconName) {
-    if (iconName == null) return null;
-    switch (iconName.toLowerCase()) {
+  /// Get icon from string value
+  static IconData? parseIcon(String? iconValue) {
+    if (iconValue == null) return null;
+    switch (iconValue.toLowerCase()) {
       case 'add': return Icons.add;
-      case 'remove':
-      case 'minus': return Icons.remove;
+      case 'remove': return Icons.remove;
       case 'delete': return Icons.delete;
       case 'edit': return Icons.edit;
-      case 'save': return Icons.save;
-      case 'cancel': return Icons.cancel;
-      case 'check':
-      case 'done': return Icons.check;
+      case 'check': return Icons.check;
       case 'close': return Icons.close;
-      case 'arrow_back': return Icons.arrow_back;
-      case 'arrow_forward': return Icons.arrow_forward;
-      case 'menu': return Icons.menu;
       case 'home': return Icons.home;
-      case 'search': return Icons.search;
       case 'settings': return Icons.settings;
-      case 'person':
-      case 'user': return Icons.person;
-      case 'refresh': return Icons.refresh;
+      case 'search': return Icons.search;
+      case 'menu': return Icons.menu;
+      case 'more_vert': return Icons.more_vert;
       case 'favorite': return Icons.favorite;
       case 'star': return Icons.star;
-      case 'share': return Icons.share;
-      case 'more_vert': return Icons.more_vert;
+      case 'refresh': return Icons.refresh;
       case 'info': return Icons.info;
       case 'warning': return Icons.warning;
       case 'error': return Icons.error;
-      case 'check_circle': return Icons.check_circle;
-      case 'circle': return Icons.circle;
-      case 'radio_button_unchecked': return Icons.radio_button_unchecked;
-      case 'radio_button_checked': return Icons.radio_button_checked;
-      case 'check_box': return Icons.check_box;
-      case 'check_box_outline_blank': return Icons.check_box_outline_blank;
-      default: return null;
+      case 'shopping_cart': return Icons.shopping_cart;
+      case 'person': return Icons.person;
+      case 'mail': return Icons.mail;
+      case 'phone': return Icons.phone;
+      case 'camera': return Icons.camera;
+      case 'location_on': return Icons.location_on;
+      case 'arrow_back': return Icons.arrow_back;
+      case 'arrow_forward': return Icons.arrow_forward;
+      default: return Icons.help_outline;
+    }
+  }
+
+  /// Get alignment from string value
+  static Alignment parseAlignment(String? alignValue) {
+    if (alignValue == null) return Alignment.center;
+    switch (alignValue.toLowerCase()) {
+      case 'topleft': return Alignment.topLeft;
+      case 'topcenter': return Alignment.topCenter;
+      case 'topright': return Alignment.topRight;
+      case 'centerleft': return Alignment.centerLeft;
+      case 'center': return Alignment.center;
+      case 'centerright': return Alignment.centerRight;
+      case 'bottomleft': return Alignment.bottomLeft;
+      case 'bottomcenter': return Alignment.bottomCenter;
+      case 'bottomright': return Alignment.bottomRight;
+      default: return Alignment.center;
     }
   }
 }
