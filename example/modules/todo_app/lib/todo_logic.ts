@@ -7,7 +7,7 @@ export interface Todo {
   createdAt: string;
 }
 
-const { defineAction, states, api, log, moduleId } = createModule('todo');
+const { defineAction, states, api, log, moduleId } = createModule('todo_app');
 
 log('Module initialized');
 

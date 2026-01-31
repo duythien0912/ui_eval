@@ -69,10 +69,10 @@ class _UIRuntimeWidgetState extends State<UIRuntimeWidget> {
     return _state[key];
   }
 
-  void _invokeAction(String actionName, Map<String, dynamic>? params) {
+  Future<void> _invokeAction(String actionName, Map<String, dynamic>? params) async {
     final handler = widget.actions?[actionName];
     if (handler != null) {
-      handler(params);
+      await handler(params);
     }
   }
 

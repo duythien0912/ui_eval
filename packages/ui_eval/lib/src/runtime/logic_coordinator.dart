@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_js/flutter_js.dart';
+import 'package:http/http.dart' as http;
 import 'state_manager.dart';
 
 /// FlutterJS-based Logic Coordinator - replaces WebView with QuickJS/JavascriptCore
@@ -62,6 +63,9 @@ class FlutterJsLogicCoordinator {
           case 'console.log':
             _handleConsoleLog(moduleId, payload);
             break;
+          case 'api.request':
+            _handleApiRequest(moduleId, payload, callId);
+            break;
           case 'response.action.result':
             _handleActionResult(callId, payload);
             break;
@@ -119,6 +123,50 @@ class FlutterJsLogicCoordinator {
       default:
         debugPrint('$prefix ${args.join(' ')}');
         break;
+    }
+  }
+
+  Future<void> _handleApiRequest(String moduleId, Map<String, dynamic> payload, String callId) async {
+    try {
+      final url = payload['url'] as String;
+      final method = payload['method'] as String? ?? 'GET';
+      final headers = payload['headers'] as Map<String, dynamic>?;
+      final body = payload['body'];
+
+      dynamic responseData;
+
+      if (method == 'GET') {
+        final response = await http.get(
+          Uri.parse(url),
+          headers: headers?.map((k, v) => MapEntry(k, v.toString())),
+        );
+        responseData = jsonDecode(response.body);
+      } else if (method == 'POST') {
+        final response = await http.post(
+          Uri.parse(url),
+          headers: headers?.map((k, v) => MapEntry(k, v.toString())),
+          body: body != null ? jsonEncode(body) : null,
+        );
+        responseData = jsonDecode(response.body);
+      } else if (method == 'PUT') {
+        final response = await http.put(
+          Uri.parse(url),
+          headers: headers?.map((k, v) => MapEntry(k, v.toString())),
+          body: body != null ? jsonEncode(body) : null,
+        );
+        responseData = jsonDecode(response.body);
+      } else if (method == 'DELETE') {
+        final response = await http.delete(
+          Uri.parse(url),
+          headers: headers?.map((k, v) => MapEntry(k, v.toString())),
+        );
+        responseData = response.body.isNotEmpty ? jsonDecode(response.body) : null;
+      }
+
+      _sendResponse(callId, moduleId, {'data': responseData}, responseType: 'api');
+    } catch (e) {
+      debugPrint('[FlutterJS] API request error: $e');
+      _sendResponse(callId, moduleId, {'error': e.toString()}, responseType: 'api');
     }
   }
 
