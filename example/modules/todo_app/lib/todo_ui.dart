@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:convert';
-import 'package:ui_eval/ui_eval.dart';
+import 'package:ui_eval/dsl_only.dart';
 
 /// Todo Mini App using type-safe ui_eval DSL
 /// 

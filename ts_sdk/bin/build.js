@@ -3,7 +3,10 @@
 /**
  * UI Eval Build Script
  *
- * Bundles TypeScript modules into JavaScript bundles for runtime evaluation.
+ * Complete build pipeline:
+ * 1. Compile Dart UI files to JSON (using Flutter context from example app)
+ * 2. Bundle TypeScript logic to JavaScript strings
+ * 3. Combine into final JSON bundles
  *
  * Usage:
  *   ui-eval-build                    # Build all modules
@@ -14,6 +17,7 @@
 const esbuild = require('esbuild');
 const path = require('path');
 const fs = require('fs');
+const { execSync } = require('child_process');
 
 // Configuration - resolve paths from current working directory
 const CWD = process.cwd();
@@ -22,6 +26,7 @@ const isInModulesDir = fs.existsSync(path.join(CWD, 'package.json')) &&
                        fs.existsSync(path.join(CWD, 'counter_app'));
 const MODULES_DIR = isInModulesDir ? CWD : path.join(CWD, 'modules');
 const OUTPUT_DIR = isInModulesDir ? path.join(CWD, '..', 'assets') : path.join(CWD, 'assets');
+const EXAMPLE_DIR = isInModulesDir ? path.join(CWD, '..') : CWD;
 const TS_SDK_DIR = path.resolve(__dirname, '..');
 
 // Colors for console output
@@ -31,6 +36,7 @@ const colors = {
   blue: '\x1b[34m',
   yellow: '\x1b[33m',
   red: '\x1b[31m',
+  cyan: '\x1b[36m',
 };
 
 function log(message, color = 'reset') {
@@ -38,7 +44,7 @@ function log(message, color = 'reset') {
 }
 
 /**
- * Scan modules directory and find all TypeScript modules
+ * Scan modules directory and find all modules with UI and logic files
  */
 function scanModules() {
   const modules = [];
@@ -57,21 +63,24 @@ function scanModules() {
       const moduleDir = path.join(MODULES_DIR, moduleName);
       const libDir = path.join(moduleDir, 'lib');
 
-      // Look for TypeScript files in lib directory
-      if (fs.existsSync(libDir)) {
-        const tsFiles = fs.readdirSync(libDir).filter(f => f.endsWith('.ts'));
+      if (!fs.existsSync(libDir)) continue;
 
-        if (tsFiles.length > 0) {
-          // Use the first .ts file as entry point, or look for *_logic.ts
-          const logicFile = tsFiles.find(f => f.endsWith('_logic.ts')) || tsFiles[0];
-          const entryPoint = path.join(libDir, logicFile);
+      // Look for UI Dart file
+      const shortName = moduleName.replace('_app', '');
+      const uiDartFile = path.join(libDir, `${shortName}_ui.dart`);
 
-          modules.push({
-            name: moduleName,
-            entryPoint,
-            outputFile: path.join(OUTPUT_DIR, `${moduleName}.bundle`),
-          });
-        }
+      // Look for logic TypeScript file
+      const logicTsFile = path.join(libDir, `${shortName}_logic.ts`);
+
+      // Module must have at least UI file
+      if (fs.existsSync(uiDartFile)) {
+        modules.push({
+          name: moduleName,
+          moduleDir,
+          uiDartFile,
+          logicTsFile: fs.existsSync(logicTsFile) ? logicTsFile : null,
+          outputFile: path.join(OUTPUT_DIR, `${moduleName}.bundle`),
+        });
       }
     }
   }
@@ -80,34 +89,136 @@ function scanModules() {
 }
 
 /**
- * Build a single module
+ * Compile Dart UI file to JSON (runs from example directory for Flutter context)
  */
-async function buildModule(module) {
-  log(`Building ${module.name}...`, 'blue');
+async function compileDartUI(module) {
+  log(`  Compiling Dart UI: ${path.basename(module.uiDartFile)}`, 'cyan');
+
+  // Create a temporary compilation script in the example directory
+  const tempScript = `
+import 'dart:convert';
+import 'package:ui_eval/dsl_only.dart';
+
+// Import the module UI file using relative path from example directory
+import 'modules/${module.name}/lib/${path.basename(module.uiDartFile)}';
+
+void main() {
+  final app = ${toPascalCase(module.name.replace('_app', ''))}MiniApp();
+  final json = app.program.toJson();
+  print('__JSON_START__');
+  print(jsonEncode(json));
+  print('__JSON_END__');
+}
+`;
+
+  const tempFile = path.join(EXAMPLE_DIR, `.temp_compile_${module.name}.dart`);
+  fs.writeFileSync(tempFile, tempScript);
+
+  try {
+    // Run from example directory where Flutter context exists
+    const result = execSync(`dart run ${path.basename(tempFile)}`, {
+      cwd: EXAMPLE_DIR,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+
+    const startIdx = result.indexOf('__JSON_START__');
+    const endIdx = result.indexOf('__JSON_END__');
+
+    if (startIdx === -1 || endIdx === -1) {
+      throw new Error('Could not find JSON markers in Dart output');
+    }
+
+    const jsonStr = result.substring(startIdx + '__JSON_START__'.length, endIdx).trim();
+    const uiJson = JSON.parse(jsonStr);
+
+    log(`    ✓ UI compiled`, 'green');
+    return uiJson;
+  } catch (error) {
+    log(`    ✗ Failed to compile Dart UI`, 'red');
+    if (error.stderr) {
+      console.error(error.stderr.toString());
+    }
+    throw error;
+  } finally {
+    if (fs.existsSync(tempFile)) {
+      fs.unlinkSync(tempFile);
+    }
+  }
+}
+
+/**
+ * Bundle TypeScript logic to JavaScript string
+ */
+async function bundleTypeScriptLogic(module) {
+  if (!module.logicTsFile) {
+    log(`  No TypeScript logic file found, using empty logic`, 'yellow');
+    return '';
+  }
+
+  log(`  Bundling TypeScript logic: ${path.basename(module.logicTsFile)}`, 'cyan');
+
+  const tempOutFile = path.join(module.moduleDir, '.temp_logic_bundle.js');
 
   try {
     await esbuild.build({
-      entryPoints: [module.entryPoint],
+      entryPoints: [module.logicTsFile],
       bundle: true,
-      outfile: module.outputFile,
+      outfile: tempOutFile,
       platform: 'neutral',
       format: 'iife',
       target: 'es2020',
       minify: false,
       sourcemap: false,
-      external: [], // Bundle everything
+      external: [],
       alias: {
         '@ui_eval/sdk': path.join(TS_SDK_DIR, 'dist/index.js'),
       },
-      banner: {
-        js: '// UI Eval Bundle - Auto-generated, do not edit manually\n',
-      },
     });
 
-    log(`  ✓ ${module.name}.bundle`, 'green');
+    const logicCode = fs.readFileSync(tempOutFile, 'utf8');
+    log(`    ✓ Logic bundled (${(logicCode.length / 1024).toFixed(2)} KB)`, 'green');
+    return logicCode;
   } catch (error) {
-    log(`  ✗ Failed to build ${module.name}:`, 'red');
+    log(`    ✗ Failed to bundle TypeScript logic`, 'red');
     console.error(error);
+    throw error;
+  } finally {
+    if (fs.existsSync(tempOutFile)) {
+      fs.unlinkSync(tempOutFile);
+    }
+  }
+}
+
+/**
+ * Build a single module (UI + Logic → JSON bundle)
+ */
+async function buildModule(module) {
+  log(`Building ${module.name}...`, 'blue');
+
+  try {
+    // Step 1: Compile Dart UI to JSON
+    const uiJson = await compileDartUI(module);
+
+    // Step 2: Bundle TypeScript logic to JS string
+    const logicCode = await bundleTypeScriptLogic(module);
+
+    // Step 3: Create final JSON bundle
+    const bundle = {
+      format: 'ui_eval_bundle_v1',
+      moduleId: module.name,
+      generatedAt: new Date().toISOString(),
+      ui: uiJson,
+      logic: logicCode,
+    };
+
+    // Step 4: Write to output file
+    const bundleJson = JSON.stringify(bundle, null, 2);
+    fs.writeFileSync(module.outputFile, bundleJson, 'utf8');
+
+    log(`  ✓ ${module.name}.bundle (${(bundleJson.length / 1024).toFixed(2)} KB)`, 'green');
+  } catch (error) {
+    log(`  ✗ Failed to build ${module.name}`, 'red');
     throw error;
   }
 }
@@ -120,7 +231,6 @@ async function buildAll(targetModule = null, watchMode = false) {
 
   // Ensure TypeScript SDK is built
   log('Building TypeScript SDK...', 'yellow');
-  const { execSync } = require('child_process');
 
   try {
     execSync('npm run build', {
@@ -167,6 +277,7 @@ async function buildAll(targetModule = null, watchMode = false) {
 
   if (!hasErrors) {
     log(`\n✓ Build complete! ${modulesToBuild.length} module(s) built.`, 'green');
+    log(`\nOutput: ${OUTPUT_DIR}`, 'cyan');
   } else {
     log('\n✗ Build completed with errors.', 'red');
     process.exit(1);
@@ -175,46 +286,19 @@ async function buildAll(targetModule = null, watchMode = false) {
   // Watch mode
   if (watchMode) {
     log('\nWatching for changes...', 'yellow');
-
-    const contexts = await Promise.all(
-      modulesToBuild.map(async (module) => {
-        return await esbuild.context({
-          entryPoints: [module.entryPoint],
-          bundle: true,
-          outfile: module.outputFile,
-          platform: 'neutral',
-          format: 'iife',
-          target: 'es2020',
-          minify: false,
-          sourcemap: false,
-          external: [],
-          alias: {
-            '@ui_eval/sdk': path.join(TS_SDK_DIR, 'dist/index.js'),
-          },
-          banner: {
-            js: '// UI Eval Bundle - Auto-generated, do not edit manually\n',
-          },
-          plugins: [{
-            name: 'rebuild-notifier',
-            setup(build) {
-              build.onEnd(result => {
-                if (result.errors.length === 0) {
-                  log(`  ✓ Rebuilt ${module.name}.bundle`, 'green');
-                } else {
-                  log(`  ✗ Failed to rebuild ${module.name}`, 'red');
-                }
-              });
-            },
-          }],
-        });
-      })
-    );
-
-    await Promise.all(contexts.map(ctx => ctx.watch()));
-
-    // Keep the process alive
-    await new Promise(() => {});
+    log('Watch mode not yet implemented for Dart + TS builds', 'yellow');
+    log('Please rebuild manually when files change', 'yellow');
   }
+}
+
+/**
+ * Convert string to PascalCase
+ */
+function toPascalCase(str) {
+  return str
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join('');
 }
 
 // Parse CLI arguments
