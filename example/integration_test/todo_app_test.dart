@@ -63,9 +63,10 @@ void main() {
       await tester.tap(addButton);
       await tester.pumpAndSettle();
 
-      // Wait for action to execute
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Wait for action to execute through JS bridge
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Verify todo was added to the list
       expect(find.text('Buy groceries'), findsOneWidget);
@@ -96,24 +97,27 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(addButton);
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Add second todo
       await tester.enterText(textField, 'Second task');
       await tester.pumpAndSettle();
       await tester.tap(addButton);
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Add third todo
       await tester.enterText(textField, 'Third task');
       await tester.pumpAndSettle();
       await tester.tap(addButton);
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Verify all todos are displayed
       expect(find.text('First task'), findsOneWidget);
@@ -140,8 +144,9 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Add'));
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Find the checkbox
       final checkbox = find.byType(Checkbox);
@@ -154,8 +159,9 @@ void main() {
       // Tap checkbox to complete the todo
       await tester.tap(checkbox);
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Verify checkbox is now checked
       checkboxWidget = tester.widget(checkbox);
@@ -164,8 +170,9 @@ void main() {
       // Tap again to uncomplete
       await tester.tap(checkbox);
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Verify checkbox is unchecked again
       checkboxWidget = tester.widget(checkbox);
@@ -191,8 +198,9 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Add'));
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Verify todo exists
       expect(find.text('Task to delete'), findsOneWidget);
@@ -202,8 +210,9 @@ void main() {
       expect(deleteButton, findsOneWidget);
       await tester.tap(deleteButton);
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Verify todo was deleted
       expect(find.text('Task to delete'), findsNothing);
@@ -230,22 +239,25 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(addButton);
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       await tester.enterText(textField, 'Delete this one');
       await tester.pumpAndSettle();
       await tester.tap(addButton);
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       await tester.enterText(textField, 'Keep this too');
       await tester.pumpAndSettle();
       await tester.tap(addButton);
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Verify all three exist
       expect(find.text('Keep this one'), findsOneWidget);
@@ -259,8 +271,9 @@ void main() {
       // Delete the middle one (index 1)
       await tester.tap(deleteButtons.at(1));
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Verify correct item was deleted
       expect(find.text('Keep this one'), findsOneWidget);
@@ -288,8 +301,9 @@ void main() {
       final addButton = find.text('Add');
       await tester.tap(addButton);
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Verify no checkbox appears (no todo was added)
       expect(find.byType(Checkbox), findsNothing);
@@ -300,8 +314,9 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(addButton);
       await tester.pumpAndSettle();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(seconds: 1));
       await tester.pumpAndSettle();
+      await tester.pump();
 
       // Still no checkbox
       expect(find.byType(Checkbox), findsNothing);
@@ -327,15 +342,16 @@ void main() {
       await tester.pumpAndSettle();
 
       // Wait for API call to complete
-      await Future.delayed(const Duration(seconds: 3));
+      await Future.delayed(const Duration(seconds: 4));
       await tester.pumpAndSettle();
+      await tester.pump();
 
-      // Verify todos were loaded (should be 5 from the API)
+      // Verify todos were loaded (should be 10 from the API with limit=10)
       final checkboxes = find.byType(Checkbox);
       expect(checkboxes, findsWidgets);
 
-      // API returns 5 todos
-      expect(checkboxes, findsNWidgets(5));
+      // API returns 10 todos (we set limit=10 in the request)
+      expect(checkboxes, findsNWidgets(10));
     });
   });
 }

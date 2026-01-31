@@ -65,6 +65,14 @@ class AppLauncherPage extends StatelessWidget {
       color: Colors.teal,
       bundlePath: 'assets/todo_app.bundle',
     ),
+    MiniAppInfo(
+      id: 'store',
+      name: 'Shopping Store',
+      description: 'E-commerce product catalog with cart',
+      icon: Icons.shopping_bag,
+      color: Colors.purple,
+      bundlePath: 'assets/store_app.bundle',
+    ),
   ];
 
   @override

@@ -42,7 +42,8 @@ class UIContent {
       onPressed = () {
         final actionName = onTapAction['action'] as String;
         final params = onTapAction['params'] as Map<String, dynamic>?;
-        onAction(actionName, params);
+        final processedParams = UIWidgets.processActionParams(params, state);
+        onAction(actionName, processedParams);
       };
     }
 
@@ -157,7 +158,8 @@ class UIContent {
           ? () {
               final actionName = onTapAction['action'] as String;
               final params = onTapAction['params'] as Map<String, dynamic>?;
-              onAction(actionName, params);
+              final processedParams = UIWidgets.processActionParams(params, state);
+              onAction(actionName, processedParams);
             }
           : null,
     );
@@ -177,7 +179,8 @@ class UIContent {
           ? () {
               final actionName = onTapAction['action'] as String;
               final params = onTapAction['params'] as Map<String, dynamic>?;
-              onAction(actionName, params);
+              final processedParams = UIWidgets.processActionParams(params, state);
+              onAction(actionName, processedParams);
             }
           : null,
       backgroundColor: UIWidgets.parseColor(def['backgroundColor'] as String?),

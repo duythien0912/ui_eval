@@ -38,7 +38,8 @@ class UIInput {
                   params[key] = value;
                 }
               });
-              onAction(actionName, params);
+              final processedParams = UIWidgets.processActionParams(params, state);
+              onAction(actionName, processedParams);
             }
           : null,
     );
@@ -68,7 +69,8 @@ class UIInput {
                   params[key] = newValue;
                 }
               });
-              onAction(actionName, params);
+              final processedParams = UIWidgets.processActionParams(params, state);
+              onAction(actionName, processedParams);
             }
           : null,
     );
@@ -97,7 +99,8 @@ class UIInput {
                   params[key] = newValue;
                 }
               });
-              onAction(actionName, params);
+              final processedParams = UIWidgets.processActionParams(params, state);
+              onAction(actionName, processedParams);
             }
           : null,
     );

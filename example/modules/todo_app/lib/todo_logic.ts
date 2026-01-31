@@ -129,16 +129,21 @@ export const fetchTodosFromApi = defineAction(
   async () => {
     try {
       log("🌐 Fetching todos from API...");
-      const todos = await api.request({
-        url: "https://dummyjson.com/todos",
+      const response = await api.request({
+        url: "https://dummyjson.com/todos?limit=10",
         method: "GET",
         useFlutterProxy: true,
       });
-      const formattedTodos: Todo[] = (todos.todos as any[]).map((t: any) => ({
+
+      log("📦 API Response:", JSON.stringify(response).substring(0, 200));
+
+      const todosArray = response.todos || [];
+      const formattedTodos: Todo[] = todosArray.map((t: any) => ({
         title: t.todo,
         completed: t.completed,
         createdAt: new Date().toISOString(),
       }));
+
       await states.set(State.todos, formattedTodos);
       log("✅ Fetched", formattedTodos.length, "todos from API");
     } catch (error) {

@@ -95,7 +95,8 @@ class UILists {
           ? () {
               final actionName = onTapAction['action'] as String;
               final params = onTapAction['params'] as Map<String, dynamic>?;
-              onAction(actionName, params);
+              final processedParams = UIWidgets.processActionParams(params, state);
+              onAction(actionName, processedParams);
             }
           : null,
     );
