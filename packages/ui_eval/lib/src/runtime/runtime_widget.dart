@@ -1,5 +1,6 @@
 library;
 
+import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -306,41 +307,14 @@ class _UIBundleLoaderState extends State<UIBundleLoader> {
     setState(() => _state = moduleState);
   }
 
+  /// Builds a dynamic action map that can handle any action name.
+  /// This uses a proxy pattern to forward any action call to the TypeScript runtime.
   Map<String, Function(Map<String, dynamic>? params)> _buildActions() {
-    // Get all action names from the UI definition
-    final actions = <String, Function(Map<String, dynamic>? params)>{};
-    
-    // Add a generic action handler that forwards to TypeScript
-    void addAction(String name) {
-      actions[name] = (params) => _executeAction(name, params);
-    }
-
-    // Extract actions from UI definition if available
-    final uiActions = _bundle?.ui['actions'] as List<dynamic>?;
-    if (uiActions != null) {
-      for (final action in uiActions) {
-        final name = action['name'] as String?;
-        if (name != null) addAction(name);
-      }
-    }
-
-    // Always add common actions that might be referenced
-    // These will be called from TypeScript
-    return {
-      'increment': (p) => _executeAction('increment', p),
-      'decrement': (p) => _executeAction('decrement', p),
-      'reset': (p) => _executeAction('reset', p),
-      'setStep': (p) => _executeAction('setStep', p),
-      'double': (p) => _executeAction('double', p),
-      'setValue': (p) => _executeAction('setValue', p),
-      'addTodo': (p) => _executeAction('addTodo', p),
-      'toggleTodo': (p) => _executeAction('toggleTodo', p),
-      'deleteTodo': (p) => _executeAction('deleteTodo', p),
-      'updateTitle': (p) => _executeAction('updateTitle', p),
-      'setFilter': (p) => _executeAction('setFilter', p),
-      'clearCompleted': (p) => _executeAction('clearCompleted', p),
-      'fetchTodosFromApi': (p) => _executeAction('fetchTodosFromApi', p),
-    };
+    // Return a dynamic action proxy that intercepts any action call
+    return _DynamicActionMap(
+      moduleId: _bundle?.moduleId ?? 'unknown',
+      executeAction: _executeAction,
+    );
   }
 
   @override
@@ -367,6 +341,45 @@ class _UIBundleLoaderState extends State<UIBundleLoader> {
       errorBuilder: widget.errorBuilder,
     );
   }
+}
+
+/// A Map implementation that dynamically handles any action name.
+/// This allows modules to define any actions without hardcoding them.
+class _DynamicActionMap extends MapBase<String, Function(Map<String, dynamic>? params)> {
+  final String moduleId;
+  final Future<void> Function(String actionName, Map<String, dynamic>? params) executeAction;
+
+  // Cache for created action handlers
+  final Map<String, Function(Map<String, dynamic>? params)> _cache = {};
+
+  _DynamicActionMap({
+    required this.moduleId,
+    required this.executeAction,
+  });
+
+  @override
+  Function(Map<String, dynamic>? params)? operator [](Object? key) {
+    if (key is! String) return null;
+
+    // Return cached handler or create a new one
+    return _cache.putIfAbsent(key, () {
+      return (Map<String, dynamic>? params) => executeAction(key, params);
+    });
+  }
+
+  @override
+  void operator []=(String key, Function(Map<String, dynamic>? params) value) {
+    _cache[key] = value;
+  }
+
+  @override
+  void clear() => _cache.clear();
+
+  @override
+  Iterable<String> get keys => _cache.keys;
+
+  @override
+  Function(Map<String, dynamic>? params)? remove(Object? key) => _cache.remove(key);
 }
 
 /// A widget that provides the logic engine context.
