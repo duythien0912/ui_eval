@@ -823,10 +823,11 @@ class UIActionTrigger {
   final String action;
   final Map<String, dynamic>? params;
 
-  const UIActionTrigger({
-    required this.action,
+  /// Create action trigger from enum or string
+  UIActionTrigger({
+    required dynamic action,
     this.params,
-  });
+  }) : action = action is Enum ? action.name : action.toString();
 
   Map<String, dynamic> toJson() => {
     'action': action,

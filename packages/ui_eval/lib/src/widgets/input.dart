@@ -12,7 +12,8 @@ class UIInput {
     dynamic Function(String) getState,
   ) {
     final valueKey = def['value'] as String?;
-    final currentValue = UIWidgets.processRefs(valueKey, state)?.toString() ?? '';
+    final currentValue =
+        UIWidgets.processRefs(valueKey, state)?.toString() ?? '';
     final onChangedAction = def['onChanged'] as Map<String, dynamic>?;
 
     return TextField(
@@ -50,7 +51,8 @@ class UIInput {
     Function(String, dynamic) onStateChange,
     dynamic Function(String) getState,
   ) {
-    final value = UIWidgets.processRefs(def['value'], state) as bool? ?? false;
+    final value =
+        bool.tryParse(UIWidgets.processRefs(def['value'], state)) ?? false;
     final onChangedAction = def['onChanged'] as Map<String, dynamic>?;
 
     return Checkbox(
@@ -108,7 +110,8 @@ class UIInput {
     Function(String, dynamic) onStateChange,
     dynamic Function(String) getState,
   ) {
-    final value = (UIWidgets.processRefs(def['value'], state) as num?)?.toDouble() ?? 0.0;
+    final value =
+        (UIWidgets.processRefs(def['value'], state) as num?)?.toDouble() ?? 0.0;
     final min = (def['min'] as num?)?.toDouble() ?? 0.0;
     final max = (def['max'] as num?)?.toDouble() ?? 1.0;
     final divisions = (def['divisions'] as num?)?.toInt();
@@ -142,13 +145,20 @@ class UIInput {
 
   static TextInputType? _parseTextInputType(String? value) {
     switch (value) {
-      case 'text': return TextInputType.text;
-      case 'number': return TextInputType.number;
-      case 'phone': return TextInputType.phone;
-      case 'email': return TextInputType.emailAddress;
-      case 'url': return TextInputType.url;
-      case 'multiline': return TextInputType.multiline;
-      default: return null;
+      case 'text':
+        return TextInputType.text;
+      case 'number':
+        return TextInputType.number;
+      case 'phone':
+        return TextInputType.phone;
+      case 'email':
+        return TextInputType.emailAddress;
+      case 'url':
+        return TextInputType.url;
+      case 'multiline':
+        return TextInputType.multiline;
+      default:
+        return null;
     }
   }
 }
