@@ -1,7 +1,7 @@
 // @ts-ignore
 import { createModule } from '@ui_eval/sdk';
 
-const { defineAction, states, log, moduleId } = createModule('counter');
+const { defineAction, states, log, moduleId } = createModule('counter_app');
 
 log('Module initialized');
 

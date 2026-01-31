@@ -89,13 +89,23 @@ class UIWidgets {
   /// Process a value that may contain state references like {{state.key}}
   static dynamic processRefs(dynamic value, Map<String, dynamic> state) {
     if (value is String) {
-      // Handle {{state.key}} references
-      final stateRef = RegExp(r'\{\{\s*state\.(\w+)\s*\}\}').firstMatch(value);
-      if (stateRef != null) {
-        final key = stateRef.group(1)!;
+      // Check if the entire string is a single state reference
+      final singleRefMatch = RegExp(r'^\{\{\s*state\.(\w+)\s*\}\}$').firstMatch(value);
+      if (singleRefMatch != null) {
+        final key = singleRefMatch.group(1)!;
         return state[key];
       }
-      return value;
+      
+      // Handle {{state.key}} references - replace all occurrences in the string
+      final result = value.replaceAllMapped(
+        RegExp(r'\{\{\s*state\.(\w+)\s*\}\}'),
+        (match) {
+          final key = match.group(1)!;
+          final stateValue = state[key];
+          return stateValue?.toString() ?? '';
+        },
+      );
+      return result;
     }
     return value;
   }

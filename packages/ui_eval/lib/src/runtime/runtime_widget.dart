@@ -42,7 +42,17 @@ class _UIRuntimeWidgetState extends State<UIRuntimeWidget> {
     // Sync state when initialState prop changes from parent
     if (widget.initialState != null) {
       final newState = Map<String, dynamic>.from(widget.initialState!);
-      if (newState.toString() != _state.toString()) {
+      // Check if state actually changed by comparing key values
+      bool hasChanged = newState.length != _state.length;
+      if (!hasChanged) {
+        for (final entry in newState.entries) {
+          if (_state[entry.key] != entry.value) {
+            hasChanged = true;
+            break;
+          }
+        }
+      }
+      if (hasChanged) {
         setState(() => _state = newState);
       }
     }
@@ -356,5 +366,24 @@ class _UIBundleLoaderState extends State<UIBundleLoader> {
       actions: _buildActions(),
       errorBuilder: widget.errorBuilder,
     );
+  }
+}
+
+/// A widget that provides the logic engine context.
+/// With flutter_js, this is just a placeholder that returns the child,
+/// as the JavaScript runtime is managed internally.
+class LogicEngineWidget extends StatelessWidget {
+  final Widget child;
+
+  const LogicEngineWidget({
+    super.key,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // With flutter_js, the JavaScript runtime is managed internally
+    // and doesn't require a visible widget in the tree
+    return child;
   }
 }

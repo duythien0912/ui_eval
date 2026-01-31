@@ -114,25 +114,29 @@ class UIInput {
     final divisions = (def['divisions'] as num?)?.toInt();
     final onChangedAction = def['onChanged'] as Map<String, dynamic>?;
 
-    return Slider(
-      value: value.clamp(min, max),
-      min: min,
-      max: max,
-      divisions: divisions,
-      onChanged: onChangedAction != null
-          ? (newValue) {
-              final actionName = onChangedAction['action'] as String;
-              final params = Map<String, dynamic>.from(
-                  onChangedAction['params'] as Map<String, dynamic>? ?? {});
-              // Process template values like "{{value}}" in params
-              params.forEach((key, val) {
-                if (val is String && val.contains('{{value}}')) {
-                  params[key] = newValue;
-                }
-              });
-              onAction(actionName, params);
-            }
-          : null,
+    // Wrap in Material to satisfy Slider's Material requirement
+    return Material(
+      type: MaterialType.transparency,
+      child: Slider(
+        value: value.clamp(min, max),
+        min: min,
+        max: max,
+        divisions: divisions,
+        onChanged: onChangedAction != null
+            ? (newValue) {
+                final actionName = onChangedAction['action'] as String;
+                final params = Map<String, dynamic>.from(
+                    onChangedAction['params'] as Map<String, dynamic>? ?? {});
+                // Process template values like "{{value}}" in params
+                params.forEach((key, val) {
+                  if (val is String && val.contains('{{value}}')) {
+                    params[key] = newValue;
+                  }
+                });
+                onAction(actionName, params);
+              }
+            : null,
+      ),
     );
   }
 
