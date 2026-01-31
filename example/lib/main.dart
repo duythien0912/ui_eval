@@ -49,7 +49,7 @@ class AppLauncherPage extends StatelessWidget {
   const AppLauncherPage({super.key});
 
   List<MiniAppInfo> get apps => [
-    MiniAppInfo(
+    const MiniAppInfo(
       id: 'counter',
       name: 'Counter App',
       description: 'Simple counter with TypeScript logic',
@@ -57,7 +57,7 @@ class AppLauncherPage extends StatelessWidget {
       color: Colors.blue,
       bundlePath: 'assets/counter_app.bundle',
     ),
-    MiniAppInfo(
+    const MiniAppInfo(
       id: 'todo',
       name: 'Todo App',
       description: 'Todo list with add/delete (TypeScript)',
@@ -65,7 +65,7 @@ class AppLauncherPage extends StatelessWidget {
       color: Colors.teal,
       bundlePath: 'assets/todo_app.bundle',
     ),
-    MiniAppInfo(
+    const MiniAppInfo(
       id: 'store',
       name: 'Shopping Store',
       description: 'E-commerce product catalog with cart',

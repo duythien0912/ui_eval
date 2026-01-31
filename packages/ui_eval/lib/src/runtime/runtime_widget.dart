@@ -4,6 +4,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/widgets.dart';
 import 'logic_coordinator.dart';
 import 'state_manager.dart';
@@ -120,7 +121,9 @@ class _UIRuntimeWidgetState extends State<UIRuntimeWidget> {
 
     try {
       return _buildWidget(widget.uiJson);
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('Error build widget: $e');
+      debugPrint(stack.toString());
       setState(() => _error = e.toString());
       if (widget.errorBuilder != null) {
         return widget.errorBuilder!(e.toString());
@@ -187,7 +190,9 @@ class _UIRuntimeLoaderState extends State<UIRuntimeLoader> {
         _uiJson = jsonDecode(jsonString) as Map<String, dynamic>;
         _isLoading = false;
       });
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('Error load ui: $e');
+      debugPrint(stack.toString());
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -425,9 +430,8 @@ class _DynamicActionMap extends MapBase<String, Function(Map<String, dynamic>? p
 }
 
 /// A widget that provides the logic engine context.
-/// With flutter_js, this is just a placeholder that returns the child,
-/// as the JavaScript runtime is managed internally.
-class LogicEngineWidget extends StatelessWidget {
+/// Initializes the Riverpod ProviderContainer for state management.
+class LogicEngineWidget extends StatefulWidget {
   final Widget child;
 
   const LogicEngineWidget({
@@ -436,9 +440,33 @@ class LogicEngineWidget extends StatelessWidget {
   });
 
   @override
+  State<LogicEngineWidget> createState() => _LogicEngineWidgetState();
+}
+
+class _LogicEngineWidgetState extends State<LogicEngineWidget> {
+  late final ProviderContainer _container;
+
+  @override
+  void initState() {
+    super.initState();
+    // Create and initialize the ProviderContainer for Riverpod state management
+    _container = ProviderContainer();
+    StateManager().initialize(_container);
+    debugPrint('[LogicEngineWidget] ProviderContainer initialized');
+  }
+
+  @override
+  void dispose() {
+    _container.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // With flutter_js, the JavaScript runtime is managed internally
-    // and doesn't require a visible widget in the tree
-    return child;
+    // Provide the Riverpod container to the widget tree
+    return UncontrolledProviderScope(
+      container: _container,
+      child: widget.child,
+    );
   }
 }
